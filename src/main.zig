@@ -106,7 +106,7 @@ const State = struct {
     random: std.Random,
     ship: Ship,
     score: i32 = 0,
-    score_text: []const u8 = "100",
+    score_text: []const u8 = "0",
     asteroids: std.ArrayList(Asteroid),
     particles: std.ArrayList(Particle),
     projectiles: std.ArrayList(Projectile),
@@ -176,15 +176,6 @@ fn drawProjectile(projectile: Projectile) void {
         projectile.rotation,
         &.{ Vector2.init(0, -0.5), Vector2.init(0, 0.5) },
     );
-}
-
-fn drawControls() void {
-    rl.drawRectangle(10, 10, 250, 80, rl.Color.sky_blue.fade(0.5));
-    rl.drawRectangleLines(10, 10, 250, 80, rl.Color.blue);
-
-    rl.drawText("Ship controls:", 20, 20, 10, rl.Color.white);
-    rl.drawText("- W to Accelerate", 40, 40, 10, rl.Color.white);
-    rl.drawText("- A / D to Rotate", 40, 60, 10, rl.Color.white);
 }
 
 fn drawShip(ship: Ship) void {
@@ -277,10 +268,6 @@ fn render() !void {
 
     rl.clearBackground(rl.Color.black);
 
-    if (false) {
-        drawControls();
-    }
-
     rl.drawText(@ptrCast(state.score_text), 10, 10, 10, rl.Color.white);
 
     for (state.asteroids.items) |asteroid| {
@@ -297,10 +284,6 @@ fn render() !void {
 
     if (state.ship.alive) {
         drawShip(state.ship);
-    }
-
-    if (DEBUG) {
-        rl.drawCircleLinesV(state.ship.position, SPAWN_RADIUS * SCALE, rl.Color.green);
     }
 }
 
