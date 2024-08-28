@@ -23,7 +23,7 @@ pub fn parseConfig() !void {
     var in_stream = buf_reader.reader();
 
     var buf: [1024]u8 = undefined;
-    while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
+    while (in_stream.readUntilDelimiterOrEof(&buf, '\n') catch "") |line| {
         var parts = std.mem.split(u8, line, "=");
         if (parts.next()) |key| {
             if (parts.next()) |value| {
