@@ -17,8 +17,7 @@ pub fn main() !void {
 
     var prng = std.rand.Xoshiro256.init(@bitCast(std.time.timestamp())); // seed
 
-    var state: types.State = undefined;
-    state = .{
+    var state: types.State = .{
         .random = prng.random(),
         .ship = .{
             .position = rl.math.vector2Scale(c.WINDOW_SIZE, 0.5),
@@ -31,7 +30,7 @@ pub fn main() !void {
     defer state.particles.deinit();
     defer state.projectiles.deinit();
 
-    try logic.initAsteroids(&state);
+    try logic.initAsteroids(&state); // crate the initial asteroids
 
     while (!rl.windowShouldClose()) {
         try logic.update(&state); // update global state
@@ -39,6 +38,7 @@ pub fn main() !void {
     }
 }
 
+// test a basic state setup, run a update, and confirm no memory leaks after deinit
 test "init without graphics" {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
@@ -46,8 +46,7 @@ test "init without graphics" {
 
     var prng = std.rand.Xoshiro256.init(@bitCast(std.time.timestamp())); // seed
 
-    var state: types.State = undefined;
-    state = .{
+    var state: types.State = .{
         .random = prng.random(),
         .ship = .{
             .position = rl.math.vector2Scale(c.WINDOW_SIZE, 0.5),
@@ -61,6 +60,8 @@ test "init without graphics" {
     defer state.projectiles.deinit();
 
     try logic.initAsteroids(&state);
+
+    try logic.update(&state);
 
     try std.testing.expectEqual(state.asteroids.items.len <= 20, true);
     try std.testing.expectEqual(state.particles.items.len == 0, true);
