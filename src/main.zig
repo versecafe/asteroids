@@ -484,3 +484,30 @@ pub fn main() !void {
         try render(); // render new frame off state
     }
 }
+
+test "init without graphics" {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+    defer std.debug.assert(gpa.deinit() == .ok);
+
+    var prng = std.rand.Xoshiro256.init(@bitCast(std.time.timestamp())); // seed
+
+    state = .{
+        .random = prng.random(),
+        .ship = .{
+            .position = rlm.vector2Scale(WINDOW_SIZE, 0.5),
+        },
+        .asteroids = std.ArrayList(Asteroid).init(allocator),
+        .particles = std.ArrayList(Particle).init(allocator),
+        .projectiles = std.ArrayList(Projectile).init(allocator),
+    };
+    defer state.asteroids.deinit();
+    defer state.particles.deinit();
+    defer state.projectiles.deinit();
+
+    try initAsteroids();
+
+    try std.testing.expectEqual(state.asteroids.items.len <= 20, true);
+    try std.testing.expectEqual(state.particles.items.len == 0, true);
+    try std.testing.expectEqual(state.projectiles.items.len == 0, true);
+}
