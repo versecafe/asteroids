@@ -60,6 +60,9 @@ MAX_ASTEROIDS=15
 WINDOW_SIZE=800,600
 ```
 
+> Note that if SEED is not set it will use the current timestamp as the seed providing a
+> different game every time.
+
 ## Run Dev or Test
 
 If you are actually working on this as a jumping off point to learn zig you can use the

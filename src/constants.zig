@@ -14,8 +14,10 @@ pub var DEBUG: bool = false;
 pub var SHIP_COLISION_SIZE: f32 = 0.4;
 pub var SPAWN_RADIUS: f32 = 3.0;
 pub var MAX_ASTEROIDS: u32 = 15;
+pub var SEED: u64 = 0; // if undefined uses timstamp bitcast
 
 pub fn parseConfig() !void {
+    SEED = @bitCast(std.time.timestamp()); // set default seed based off timestamp
     var file = try std.fs.cwd().openFile("config.txt", .{});
     defer file.close();
 
@@ -76,7 +78,9 @@ pub fn parseConfig() !void {
                         if (std.mem.eql(u8, trimmed_key, "MAX_ASTEROIDS")) {
                             MAX_ASTEROIDS = try std.fmt.parseUnsigned(u32, trimmed_value, 10);
                         }
-
+                        if (std.mem.eql(u8, trimmed_key, "SEED")) {
+                            SEED = try std.fmt.parseUnsigned(u64, trimmed_value, 10);
+                        }
                         break;
                     }
                 }
