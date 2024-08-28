@@ -7,7 +7,9 @@ const logic = @import("logic.zig");
 const c = @import("constants.zig");
 
 pub fn main() !void {
-    rl.initWindow(c.WINDOW_SIZE.x, c.WINDOW_SIZE.y, "Asteroids!");
+    try c.parseConfig();
+
+    rl.initWindow(@as(i32, @intFromFloat(c.WINDOW_SIZE.x)), @as(i32, @intFromFloat(c.WINDOW_SIZE.y)), "Asteroids!");
     rl.setWindowPosition(300, 100);
     rl.setTargetFPS(120);
 
@@ -40,6 +42,8 @@ pub fn main() !void {
 
 // test a basic state setup, run a update, and confirm no memory leaks after deinit
 test "init without graphics" {
+    try c.parseConfig();
+
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     defer std.debug.assert(gpa.deinit() == .ok);

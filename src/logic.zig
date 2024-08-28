@@ -61,7 +61,7 @@ fn shootProjectile(state: *types.State) !void {
 }
 
 pub fn initAsteroids(state: *types.State) !void {
-    for (0..20) |_| {
+    for (0..c.MAX_ASTEROIDS) |_| {
         const angle = std.math.tau * state.random.float(f32);
         const size = state.random.enumValue(types.AsteroidSize);
         const position = rl.Vector2.init(
