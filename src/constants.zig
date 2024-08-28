@@ -29,11 +29,8 @@ pub fn parseConfig() !void {
             if (parts.next()) |value| {
                 const trimmed_key = std.mem.trim(u8, key, " ");
                 const trimmed_value = std.mem.trim(u8, value, " ");
-                std.debug.print("{s}, {s}", .{ trimmed_key, trimmed_value });
-
                 inline for (@typeInfo(@This()).Struct.decls) |decl| {
                     if (std.mem.eql(u8, decl.name, trimmed_key)) {
-                        std.debug.print(" MATCHED\n", .{});
                         if (std.mem.eql(u8, trimmed_key, "WINDOW_SIZE")) {
                             var sections = std.mem.split(u8, trimmed_value, ",");
                             if (sections.next()) |x| {
@@ -68,8 +65,6 @@ pub fn parseConfig() !void {
                                 DEBUG = true;
                             } else if (std.mem.eql(u8, trimmed_value, "false")) {
                                 DEBUG = false;
-                            } else {
-                                std.debug.print("ERROR: DEBUG must be true or false\n", .{});
                             }
                         }
                         if (std.mem.eql(u8, trimmed_key, "SHIP_COLISION_SIZE")) {
@@ -84,8 +79,6 @@ pub fn parseConfig() !void {
 
                         break;
                     }
-                } else {
-                    std.debug.print(".\n", .{});
                 }
             }
         }
