@@ -52,7 +52,7 @@ var MAX_ASTEROIDS: u32 = 15;
 
 declaring the variables works like so, note all fields are optional:
 
-```txt
+```env
 DEBUG=false
 SHIP_COLISION_SIZE=0.4
 SPAWN_RADIUS=3.0
