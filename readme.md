@@ -13,8 +13,8 @@ Once you have zig installed you can build the game by running:
 zig build --release=fast
 ```
 
-This will create a `zig-cache` directory and a `asteroids` executable in the
-current directory.
+This will create a `.zig-cache` directory and a `asteroids` executable inside
+of the `zig-out/bin` directory.
 
 ## Running
 
@@ -26,9 +26,9 @@ To run the game you can run:
 
 ## Controls
 
-- W - Move forward
-- A - Rotate left
-- R - Rotate right
+- W or Up - Move forward
+- A or Left - Rotate left
+- D or Right - Rotate right
 - Space - Fire
 
 ## Configuration File
