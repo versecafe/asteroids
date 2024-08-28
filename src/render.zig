@@ -69,7 +69,7 @@ fn drawProjectile(projectile: types.Projectile) void {
     );
 }
 
-fn drawShip(ship: types.Ship, state: *types.State) void {
+fn drawShip(ship: types.Ship, now: f32) void {
     drawLines(
         ship.position,
         c.SCALE,
@@ -84,7 +84,7 @@ fn drawShip(ship: types.Ship, state: *types.State) void {
         },
     );
 
-    if (ship.thrusting and @mod(@as(i32, @intFromFloat(state.now * 20.0)), 3) != 0) {
+    if (ship.thrusting and @mod(@as(i32, @intFromFloat(now * 20.0)), 3) != 0) {
         drawLines(
             ship.position,
             c.SCALE,
@@ -174,6 +174,6 @@ pub fn paint(state: *types.State) !void {
     }
 
     if (state.ship.alive) {
-        drawShip(state.ship, state);
+        drawShip(state.ship, state.now);
     }
 }
