@@ -112,8 +112,6 @@ const State = struct {
     projectiles: std.ArrayList(Projectile),
 };
 
-var state: State = undefined;
-
 fn screenWrapPosition(p: Vector2) Vector2 {
     // wrap after origin crosses the screen + 1.5 to allow smooth out of site instead of jumping
     return Vector2.init(@mod(p.x, WINDOW_SIZE.x + (1.5 * SCALE)), @mod(p.y, WINDOW_SIZE.y + (1.5 * SCALE)));
@@ -178,7 +176,7 @@ fn drawProjectile(projectile: Projectile) void {
     );
 }
 
-fn drawShip(ship: Ship) void {
+fn drawShip(ship: Ship, state: *State) void {
     drawLines(
         ship.position,
         SCALE,
@@ -211,7 +209,7 @@ fn drawShip(ship: Ship) void {
     }
 }
 
-fn spawnDeathParticles(position: Vector2) !void {
+fn spawnDeathParticles(position: Vector2, state: *State) !void {
     for (0..5) |_| {
         const angle = std.math.tau * state.random.float(f32);
         try state.particles.append(
@@ -237,7 +235,7 @@ fn spawnDeathParticles(position: Vector2) !void {
     }
 }
 
-fn shootProjectile() !void {
+fn shootProjectile(state: *State) !void {
     // throttle to one shot per 0.25 seconds
     if (state.ship.last_shot < state.now - 0.25) {
         state.ship.last_shot = state.now;
@@ -262,7 +260,7 @@ fn shootProjectile() !void {
     }
 }
 
-fn render() !void {
+fn render(state: *State) !void {
     rl.beginDrawing();
     defer rl.endDrawing();
 
@@ -283,7 +281,7 @@ fn render() !void {
     }
 
     if (state.ship.alive) {
-        drawShip(state.ship);
+        drawShip(state.ship, state);
     }
 }
 
@@ -293,7 +291,7 @@ pub fn copyIntStr(n: i32) []const u8 {
     return @as([]const u8, result);
 }
 
-fn update() !void {
+fn update(state: *State) !void {
     state.delta = rl.getFrameTime();
     state.now += state.delta;
 
@@ -339,7 +337,7 @@ fn update() !void {
             state.ship.alive = false;
             state.ship.death_time = state.now;
 
-            try spawnDeathParticles(state.ship.position);
+            try spawnDeathParticles(state.ship.position, state);
         }
         if (asteroid.health > 0) {
             var projectile_index: usize = 0;
@@ -354,7 +352,7 @@ fn update() !void {
             index += 1;
         } else {
             state.score = state.score + asteroid.size.value();
-            try spawnDeathParticles(asteroid.position);
+            try spawnDeathParticles(asteroid.position, state);
             _ = state.asteroids.swapRemove(index);
         }
     }
@@ -390,21 +388,21 @@ fn update() !void {
     }
 
     if (rl.isKeyDown(rl.KeyboardKey.key_space)) {
-        try shootProjectile();
+        try shootProjectile(state);
     }
 
     state.score_text = copyIntStr(state.score);
 
     if (!state.ship.alive and (state.now - state.ship.death_time) > 2.0) {
-        try reset();
+        try reset(state);
     }
 
     if (state.asteroids.items.len == 0) {
-        try initAsteroids();
+        try initAsteroids(state);
     }
 }
 
-fn initAsteroids() !void {
+fn initAsteroids(state: *State) !void {
     for (0..20) |_| {
         const angle = std.math.tau * state.random.float(f32);
         const size = state.random.enumValue(AsteroidSize);
@@ -438,7 +436,7 @@ fn initAsteroids() !void {
     }
 }
 
-fn reset() !void {
+fn reset(state: *State) !void {
     state.ship.alive = true;
     state.ship.death_time = 0.0;
     state.score = 0;
@@ -450,7 +448,7 @@ fn reset() !void {
     try state.particles.resize(0);
     try state.projectiles.resize(0);
 
-    try initAsteroids();
+    try initAsteroids(state);
 }
 
 pub fn main() !void {
@@ -464,6 +462,7 @@ pub fn main() !void {
 
     var prng = std.rand.Xoshiro256.init(@bitCast(std.time.timestamp())); // seed
 
+    var state: State = undefined;
     state = .{
         .random = prng.random(),
         .ship = .{
@@ -477,11 +476,11 @@ pub fn main() !void {
     defer state.particles.deinit();
     defer state.projectiles.deinit();
 
-    try initAsteroids();
+    try initAsteroids(&state);
 
     while (!rl.windowShouldClose()) {
-        try update(); // update global state
-        try render(); // render new frame off state
+        try update(&state); // update global state
+        try render(&state); // render new frame off state
     }
 }
 
@@ -492,6 +491,7 @@ test "init without graphics" {
 
     var prng = std.rand.Xoshiro256.init(@bitCast(std.time.timestamp())); // seed
 
+    var state: State = undefined;
     state = .{
         .random = prng.random(),
         .ship = .{
@@ -505,7 +505,7 @@ test "init without graphics" {
     defer state.particles.deinit();
     defer state.projectiles.deinit();
 
-    try initAsteroids();
+    try initAsteroids(&state);
 
     try std.testing.expectEqual(state.asteroids.items.len <= 20, true);
     try std.testing.expectEqual(state.particles.items.len == 0, true);
