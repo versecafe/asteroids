@@ -11,7 +11,7 @@ pub var ROT_DRAG: f32 = 0.09;
 pub var DRAG: f32 = 0.03;
 pub var SPEED: f32 = 0.25;
 pub var DEBUG: bool = false;
-pub var SHIP_COLISION_SIZE: f32 = 0.4;
+pub var SHIP_COLLISION_SIZE: f32 = 0.4;
 pub var SPAWN_RADIUS: f32 = 3.0;
 pub var MAX_ASTEROIDS: u32 = 15;
 pub var SEED: u64 = 0; // if undefined uses timstamp bitcast
@@ -69,8 +69,8 @@ pub fn parseConfig() !void {
                                 DEBUG = false;
                             }
                         }
-                        if (std.mem.eql(u8, trimmed_key, "SHIP_COLISION_SIZE")) {
-                            SHIP_COLISION_SIZE = try std.fmt.parseFloat(f32, trimmed_value);
+                        if (std.mem.eql(u8, trimmed_key, "SHIP_COLLISION_SIZE")) {
+                            SHIP_COLLISION_SIZE = try std.fmt.parseFloat(f32, trimmed_value);
                         }
                         if (std.mem.eql(u8, trimmed_key, "SPAWN_RADIUS")) {
                             SPAWN_RADIUS = try std.fmt.parseFloat(f32, trimmed_value);

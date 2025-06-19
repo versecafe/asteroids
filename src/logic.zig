@@ -157,7 +157,7 @@ pub fn update(state: *types.State) !void {
             rlm.vector2Add(asteroid.position, asteroid.velocity),
         );
 
-        if (rlm.vector2Distance(asteroid.position, state.ship.position) < (asteroid.size.size() + (c.SHIP_COLISION_SIZE * c.SCALE)) and state.ship.alive) {
+        if (rlm.vector2Distance(asteroid.position, state.ship.position) < (asteroid.size.size() + (c.SHIP_COLLISION_SIZE * c.SCALE)) and state.ship.alive) {
             state.ship.alive = false;
             state.ship.death_time = state.now;
 

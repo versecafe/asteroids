@@ -45,7 +45,7 @@ var ROT_DRAG: f32 = 0.09;
 var DRAG: f32 = 0.03;
 var SPEED: f32 = 0.25;
 var DEBUG: bool = false;
-var SHIP_COLISION_SIZE: f32 = 0.4;
+var SHIP_COLLISION_SIZE: f32 = 0.4;
 var SPAWN_RADIUS: f32 = 3.0;
 var MAX_ASTEROIDS: u32 = 15;
 ```
@@ -54,7 +54,7 @@ declaring the variables works like so, note all fields are optional:
 
 ```env
 DEBUG=false
-SHIP_COLISION_SIZE=0.4
+SHIP_COLLISION_SIZE=0.4
 SPAWN_RADIUS=3.0
 MAX_ASTEROIDS=15
 WINDOW_SIZE=800,600
@@ -76,5 +76,4 @@ zig build run # compiles and launches without optimizations
 zig build test # runs the base tests for init update and no mem leaks
 ```
 
-Note that `config.txt` is still used when running the game in dev mode or runnint tests,
-try setting `DEBUG=true` in `config.txt` to see the collision debug mode.
+Note that `config.txt` is still used when running the game in dev mode or running tests, try setting `DEBUG=true` in `config.txt` to see the collision debug mode.

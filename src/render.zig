@@ -98,7 +98,7 @@ fn drawShip(ship: types.Ship, now: f32) void {
     }
 
     if (c.DEBUG) {
-        rl.drawCircleLinesV(ship.position, c.SHIP_COLISION_SIZE * c.SCALE, rl.Color.green);
+        rl.drawCircleLinesV(ship.position, c.SHIP_COLLISION_SIZE * c.SCALE, rl.Color.green);
     }
 }
 
