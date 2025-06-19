@@ -26,15 +26,15 @@ pub fn parseConfig() !void {
 
     var buf: [1024]u8 = undefined;
     while (in_stream.readUntilDelimiterOrEof(&buf, '\n') catch "") |line| {
-        var parts = std.mem.split(u8, line, "=");
+        var parts = std.mem.splitAny(u8, line, "=");
         if (parts.next()) |key| {
             if (parts.next()) |value| {
                 const trimmed_key = std.mem.trim(u8, key, " ");
                 const trimmed_value = std.mem.trim(u8, value, " ");
-                inline for (@typeInfo(@This()).Struct.decls) |decl| {
+                inline for (@typeInfo(@This()).@"struct".decls) |decl| {
                     if (std.mem.eql(u8, decl.name, trimmed_key)) {
                         if (std.mem.eql(u8, trimmed_key, "WINDOW_SIZE")) {
-                            var sections = std.mem.split(u8, trimmed_value, ",");
+                            var sections = std.mem.splitAny(u8, trimmed_value, ",");
                             if (sections.next()) |x| {
                                 if (sections.next()) |y| {
                                     WINDOW_SIZE = rl.Vector2.init(

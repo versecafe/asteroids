@@ -119,17 +119,17 @@ pub fn update(state: *types.State) !void {
     state.delta = rl.getFrameTime();
     state.now += state.delta;
 
-    if (rl.isKeyDown(rl.KeyboardKey.key_a) or rl.isKeyDown(rl.KeyboardKey.key_left)) {
+    if (rl.isKeyDown(rl.KeyboardKey.a) or rl.isKeyDown(rl.KeyboardKey.left)) {
         state.ship.rotational_velocity -= state.delta * c.ROT_SPEED;
     }
-    if (rl.isKeyDown(rl.KeyboardKey.key_d) or rl.isKeyDown(rl.KeyboardKey.key_right)) {
+    if (rl.isKeyDown(rl.KeyboardKey.d) or rl.isKeyDown(rl.KeyboardKey.right)) {
         state.ship.rotational_velocity += state.delta * c.ROT_SPEED;
     }
 
     state.ship.rotational_velocity = state.ship.rotational_velocity * (1.0 - c.ROT_DRAG);
     state.ship.rotation += state.ship.rotational_velocity;
 
-    if (rl.isKeyDown(rl.KeyboardKey.key_w) or rl.isKeyDown(rl.KeyboardKey.key_up)) {
+    if (rl.isKeyDown(rl.KeyboardKey.w) or rl.isKeyDown(rl.KeyboardKey.up)) {
         const angle = state.ship.rotation + (std.math.pi * 0.5);
         const direction = rl.Vector2.init(
             std.math.cos(angle),
@@ -211,7 +211,7 @@ pub fn update(state: *types.State) !void {
         }
     }
 
-    if (rl.isKeyDown(rl.KeyboardKey.key_space)) {
+    if (rl.isKeyDown(rl.KeyboardKey.space)) {
         try shootProjectile(state);
     }
 

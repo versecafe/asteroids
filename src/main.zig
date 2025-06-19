@@ -17,7 +17,7 @@ pub fn main() !void {
     const allocator = gpa.allocator();
     defer std.debug.assert(gpa.deinit() == .ok);
 
-    var prng = std.rand.Xoshiro256.init(c.SEED);
+    var prng = std.Random.Xoshiro256.init(c.SEED);
 
     var state: types.State = .{
         .random = prng.random(),
@@ -48,7 +48,7 @@ test "init without graphics" {
     const allocator = gpa.allocator();
     defer std.debug.assert(gpa.deinit() == .ok);
 
-    var prng = std.rand.Xoshiro256.init(@bitCast(std.time.timestamp())); // seed
+    var prng = std.Random.Xoshiro256.init(@bitCast(std.time.timestamp())); // seed
 
     var state: types.State = .{
         .random = prng.random(),
