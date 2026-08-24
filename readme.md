@@ -4,7 +4,7 @@ try.
 
 ## Building
 
-To build the game you need to have zig installed. You can get it from
+To build the game you need Zig 0.16. You can get it from
 https://ziglang.org/download/
 
 Once you have zig installed you can build the game by running:

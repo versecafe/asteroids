@@ -1,36 +1,31 @@
 const std = @import("std");
 const rl = @import("raylib");
-const rg = @import("raygui");
 const types = @import("types.zig");
 const render = @import("render.zig");
 const logic = @import("logic.zig");
 const c = @import("constants.zig");
 
-pub fn main() !void {
-    try c.parseConfig();
+pub fn main(init: std.process.Init) !void {
+    try c.parseConfig(init.io);
 
     rl.initWindow(@as(i32, @intFromFloat(c.WINDOW_SIZE.x)), @as(i32, @intFromFloat(c.WINDOW_SIZE.y)), "Asteroids!");
+    defer rl.closeWindow();
     rl.setWindowPosition(300, 100);
     rl.setTargetFPS(120);
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
-    defer std.debug.assert(gpa.deinit() == .ok);
-
+    const allocator = init.gpa;
     var prng = std.Random.Xoshiro256.init(c.SEED);
 
     var state: types.State = .{
+        .allocator = allocator,
         .random = prng.random(),
         .ship = .{
             .position = rl.math.vector2Scale(c.WINDOW_SIZE, 0.5),
         },
-        .asteroids = std.ArrayList(types.Asteroid).init(allocator),
-        .particles = std.ArrayList(types.Particle).init(allocator),
-        .projectiles = std.ArrayList(types.Projectile).init(allocator),
     };
-    defer state.asteroids.deinit();
-    defer state.particles.deinit();
-    defer state.projectiles.deinit();
+    defer state.asteroids.deinit(allocator);
+    defer state.particles.deinit(allocator);
+    defer state.projectiles.deinit(allocator);
 
     try logic.initAsteroids(&state); // crate the initial asteroids
 
@@ -42,26 +37,21 @@ pub fn main() !void {
 
 // test a basic state setup, run a update, and confirm no memory leaks after deinit
 test "init without graphics" {
-    try c.parseConfig();
+    try c.parseConfig(std.testing.io);
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
-    defer std.debug.assert(gpa.deinit() == .ok);
-
-    var prng = std.Random.Xoshiro256.init(@bitCast(std.time.timestamp())); // seed
+    const allocator = std.testing.allocator;
+    var prng = std.Random.Xoshiro256.init(@bitCast(std.Io.Timestamp.now(std.testing.io, .real).toSeconds()));
 
     var state: types.State = .{
+        .allocator = allocator,
         .random = prng.random(),
         .ship = .{
             .position = rl.math.vector2Scale(c.WINDOW_SIZE, 0.5),
         },
-        .asteroids = std.ArrayList(types.Asteroid).init(allocator),
-        .particles = std.ArrayList(types.Particle).init(allocator),
-        .projectiles = std.ArrayList(types.Projectile).init(allocator),
     };
-    defer state.asteroids.deinit();
-    defer state.particles.deinit();
-    defer state.projectiles.deinit();
+    defer state.asteroids.deinit(allocator);
+    defer state.particles.deinit(allocator);
+    defer state.projectiles.deinit(allocator);
 
     try logic.initAsteroids(&state);
 

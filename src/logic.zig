@@ -13,6 +13,7 @@ fn spawnDeathParticles(position: rl.Vector2, state: *types.State) !void {
     for (0..5) |_| {
         const angle = std.math.tau * state.random.float(f32);
         try state.particles.append(
+            state.allocator,
             .{ .position = rlm.vector2Add(
                 position,
                 rl.Vector2.init(
@@ -40,23 +41,21 @@ fn shootProjectile(state: *types.State) !void {
     if (state.ship.last_shot < state.now - 0.25) {
         state.ship.last_shot = state.now;
         const angle = state.ship.rotation;
-        try state.projectiles.append(
-            .{
-                .position = state.ship.position,
-                .velocity = rlm.vector2Add(
-                    state.ship.velocity,
-                    rlm.vector2Scale(
-                        rl.Vector2.init(
-                            -std.math.sin(angle),
-                            std.math.cos(angle),
-                        ),
-                        3.0,
+        try state.projectiles.append(state.allocator, .{
+            .position = state.ship.position,
+            .velocity = rlm.vector2Add(
+                state.ship.velocity,
+                rlm.vector2Scale(
+                    rl.Vector2.init(
+                        -std.math.sin(angle),
+                        std.math.cos(angle),
                     ),
+                    3.0,
                 ),
-                .rotation = state.ship.rotation,
-                .ttl = 2.5,
-            },
-        );
+            ),
+            .rotation = state.ship.rotation,
+            .ttl = 2.5,
+        });
     }
 }
 
@@ -68,19 +67,19 @@ pub fn initAsteroids(state: *types.State) !void {
             state.random.float(f32) * c.WINDOW_SIZE.x,
             state.random.float(f32) * c.WINDOW_SIZE.y,
         );
-        var points = try std.BoundedArray(rl.Vector2, 16).init(0);
+        var points: [16]rl.Vector2 = undefined;
         const n = state.random.intRangeAtMost(i32, 8, 16);
 
         for (0..@intCast(n)) |index| {
             const radius = 0.9 + (0.35 * state.random.float(f32));
             const point_angle = (@as(f32, @floatFromInt(index)) * (std.math.tau / @as(f32, @floatFromInt(n)))) + (std.math.pi * 0.1 * state.random.float(f32));
-            try points.append(rlm.vector2Scale(
+            points[index] = rlm.vector2Scale(
                 rl.Vector2.init(std.math.cos(point_angle), std.math.sin(point_angle)),
                 radius,
-            ));
+            );
         }
         if (!(rlm.vector2Distance(position, state.ship.position) < (size.size() + (c.SPAWN_RADIUS * c.SCALE)))) {
-            try state.asteroids.append(.{
+            try state.asteroids.append(state.allocator, .{
                 .position = position,
                 .velocity = rlm.vector2Scale(
                     rl.Vector2.init(std.math.cos(angle), std.math.sin(angle)),
@@ -89,6 +88,7 @@ pub fn initAsteroids(state: *types.State) !void {
                 .size = size,
                 .health = size.health(),
                 .points = points,
+                .point_count = @intCast(n),
             });
         }
     }
@@ -102,17 +102,15 @@ fn reset(state: *types.State) !void {
     state.ship = .{
         .position = rlm.vector2Scale(c.WINDOW_SIZE, 0.5),
     };
-    try state.asteroids.resize(0);
-    try state.particles.resize(0);
-    try state.projectiles.resize(0);
+    state.asteroids.clearRetainingCapacity();
+    state.particles.clearRetainingCapacity();
+    state.projectiles.clearRetainingCapacity();
 
     try initAsteroids(state);
 }
 
-pub fn copyIntStr(n: i32) []const u8 {
-    var buffer: [4096]u8 = undefined;
-    const result = std.fmt.bufPrintZ(buffer[0..], "{d}", .{n}) catch unreachable;
-    return @as([]const u8, result);
+fn updateScoreText(state: *types.State) void {
+    state.score_text = std.fmt.bufPrintSentinel(state.score_buf[0..], "{d}", .{state.score}, 0) catch unreachable;
 }
 
 pub fn update(state: *types.State) !void {
@@ -215,7 +213,7 @@ pub fn update(state: *types.State) !void {
         try shootProjectile(state);
     }
 
-    state.score_text = copyIntStr(state.score);
+    updateScoreText(state);
 
     if (!state.ship.alive and (state.now - state.ship.death_time) > 2.0) {
         try reset(state);
