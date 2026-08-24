@@ -1,6 +1,5 @@
 const std = @import("std");
 const rl = @import("raylib");
-const rlm = rl.math;
 const c = @import("constants.zig");
 
 pub const Ship = struct {
@@ -57,7 +56,8 @@ pub const Asteroid = struct {
     velocity: rl.Vector2,
     size: AsteroidSize,
     health: i32,
-    points: std.BoundedArray(rl.Vector2, 16),
+    points: [16]rl.Vector2,
+    point_count: usize,
 };
 
 pub const ParticleType = enum {
@@ -88,13 +88,15 @@ pub const Projectile = struct {
 };
 
 pub const State = struct {
+    allocator: std.mem.Allocator,
     now: f32 = 0.0,
     delta: f32 = 0.0,
     random: std.Random,
     ship: Ship,
     score: i32 = 0,
-    score_text: []const u8 = "0",
-    asteroids: std.ArrayList(Asteroid),
-    particles: std.ArrayList(Particle),
-    projectiles: std.ArrayList(Projectile),
+    score_buf: [32]u8 = undefined,
+    score_text: [:0]const u8 = "0",
+    asteroids: std.ArrayList(Asteroid) = .empty,
+    particles: std.ArrayList(Particle) = .empty,
+    projectiles: std.ArrayList(Projectile) = .empty,
 };

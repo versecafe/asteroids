@@ -1,5 +1,4 @@
 const rl = @import("raylib");
-const rlm = rl.math;
 const std = @import("std");
 
 // these are mutable just to allow config.txt to override them
@@ -16,16 +15,15 @@ pub var SPAWN_RADIUS: f32 = 3.0;
 pub var MAX_ASTEROIDS: u32 = 15;
 pub var SEED: u64 = 0; // if undefined uses timstamp bitcast
 
-pub fn parseConfig() !void {
-    SEED = @bitCast(std.time.timestamp()); // set default seed based off timestamp
-    var file = try std.fs.cwd().openFile("config.txt", .{});
-    defer file.close();
+pub fn parseConfig(io: std.Io) !void {
+    SEED = @bitCast(std.Io.Timestamp.now(io, .real).toSeconds());
 
-    var buf_reader = std.io.bufferedReader(file.reader());
-    var in_stream = buf_reader.reader();
+    const file = try std.Io.Dir.cwd().openFile(io, "config.txt", .{});
+    defer file.close(io);
 
     var buf: [1024]u8 = undefined;
-    while (in_stream.readUntilDelimiterOrEof(&buf, '\n') catch "") |line| {
+    var reader = file.reader(io, &buf);
+    while (try reader.interface.takeDelimiter('\n')) |line| {
         var parts = std.mem.splitAny(u8, line, "=");
         if (parts.next()) |key| {
             if (parts.next()) |value| {
